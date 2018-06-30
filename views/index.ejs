@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<script src="js/jquery-3.2.1.min.js"></script>
+		<script src="bootstrap-3.3.5-dist/js/bootstrap.min.js" type="text/javascript"></script>
+		<link href="bootstrap-3.3.5-dist/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="css/show.css" type="text/css" rel="stylesheet" />
+		<script src="js/login.js" type="text/javascript"></script>
+		<script src="js/time.js" type="text/javascript"></script>
+		<script src="js/index.js" type="text/javascript"></script>
+		<link rel="stylesheet" href="css/screen.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="css/responsive.css" type="text/css" media="screen">
+		<link rel="stylesheet" href="css/colorbox.css" type="text/css" media="screen">
+		<script type="text/javascript" src="js/colorbox.js"></script>
+		<script type="text/javascript" src="js/timeliner.min.js"></script>
+		<script type="text/javascript" src="js/checkModify.js"></script>
+		<script type="text/javascript" src="js/audio.js"></script>
+		<script type="text/javascript" src="js/xuehua.js"></script>
+		<title>TO-DO</title>
+	</head>
+
+	<body>
+		<!--
+        	作者：阳浩
+        	时间：2018-06-07
+        	描述：主页展示
+        -->
+		<div class="container-fluid">
+			<div class="row">
+				<!--导航开始 -->
+				<div class="col-md-3 col-xs-3" style="background-image: url(img/33cf4fce80930785863bf7daa3d58108.jpg);height: 800px;">
+					<div style="width: 100%;">
+						<!-- 头像-->
+						<div class="header" id="head"><img src="img/header.jpg" /></div>
+						<div class="todo"><span>My To Do</span></div>
+					</div>
+					<div class="autoDiv" id="pic">
+						<div class="logOut">
+							<a href="/logout"><button class="btn-block">注&nbsp;&nbsp;销</button></a>
+						</div>
+					</div>
+					<div>
+						<%
+						var date = new Date();
+						var year = date.getFullYear();
+						var month = date.getMonth()+1;
+						var day = date.getDate();
+						if(month < 10)month = "0"+month;
+						if(day < 10)day = "0"+day;
+						var days = [31,28,31,30,31,30,31,31,30,31,30,31];
+						if((year%4==0 && year%100!=0)|| year%400==0)days[1]++;
+					%>
+
+						<div class="list-group">
+							<a href="/index?list=1" class="list-group-item unable <%=list_flag==1?'active':'' %>">
+								<span class="glyphicon glyphicon-heart-empty" aria-hidden="true"></span> Today-Things
+								<%if(list_flag==1){%>
+								<span class="badge"><%=right.length %></span>
+								<%}%>
+								<%if(list_flag!=1){%>
+								<span class="badge"></span>
+								<%}%>
+							</a>
+							<a href="/index?list=2" class="list-group-item list-group-item-success unable <%=list_flag==2?'active':'' %>">
+								<span class="glyphicon glyphicon glyphicon-th-list" aria-hidden="true"></span> 待办事项
+								<% if(list_flag==2){%>
+
+								<span class="badge" style="background: red;"><%=right.length %></span>
+								<%}%>
+								<%if(list_flag!=2){%>
+								<span class="badge" style="background: red;"></span>
+								<%}%>
+							</a>
+							<%for(let i=0;i<left.length;i++){ %>
+							<a href="/index?list=<%=left[i].id %>" class="list-group-item <%=list_flag==left[i].id?'active':'' %>" oncontextmenu="delete_list(event,'<%=left[i].id %>')">
+								<span class="glyphicon glyphicon-th-list icon" aria-hidden="true"></span>
+								<%=left[i].title %>
+								<% if(list_flag==left[i].id){%>
+
+								<span class="badge" style="background: orange;"><%=right.length %></span>
+								<%}%>
+								<%if(list_flag!=left[i].id){%>
+								<span class="badge" style="background: red;"></span>
+								<%}%>
+							</a>
+							<a id="a_menu">
+								<div class="menu" id="menu">删除列表</div>
+							</a>
+							<%} %>
+							<a href="/index?list=3" class="list-group-item unable <%=list_flag==3?'active':'' %>" oncontextmenu="remove_all(event)">
+								<span class="glyphicon glyphicon-trash icon" aria-hidden="true"></span> 已完成
+								<% if(list_flag==3){%>
+
+								<span class="badge" style="background: green;"><%=right.length %></span>
+								<%}%>
+								<%if(list_flag!=3){%>
+								<span class="badge" style="background: red;"></span>
+								<%}%>
+							</a>
+							<!--右击出现的页面 开始-->
+
+							<a href="#" id="a_remove">
+								<div class="menu" id="remove">清空垃圾桶</div>
+							</a>
+							<!--右击出现的页面 结束-->
+							<a class="list-group-item list-group-item-info" id="add_list">
+								<span class="glyphicon glyphicon glyphicon-plus" aria-hidden="true"></span> 新建清单
+							</a>
+
+						</div>
+						<!-- 添加清单-->
+						<div class="addlist" id="add">
+							<form class="form-inline" action="/addList" method="post" onsubmit="return InputAdd()">
+								<div class="form-group" id="up">
+									<div id="messageTwo" class="mes"></div>
+									<label class="sr-only" for="exampleInputEmail3">Email address</label>
+									<input type="text" class="form-control" name="listName" id="addmore" placeholder="列表名称">
+									<button type="submit" class="btn btn-default btn_add">添加</button>
+							</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 导航结束-->
+
+				<!-- 正文开始-->
+				<div class="col-md-6 col-xs-6" id="test">
+					<!--正文头-->
+					<div class="back" id="backhead">
+						<div id="divId" class="title">Will-Do</div>
+						<div class="search">
+							<form class="form-inline" action="/search" method="post" onsubmit="return checkSearch()">
+								<div class="input1">
+									<input id="search_title" name="search_title" onkeyup="tips(this)" class="form-control" placeholder="待办事项查询" />
+								</div>
+								<button type="submit" id="changeFontSize" class="btn btn-default btn_Go" value="">GO!</button>
+							</form>
+							<div id="search_tip" style="width: 200px;display: none;color: #EB9316;z-index: 1000;font-size: 20px;background: lightyellow;text-align: left;">
+								<ul id="search_ul">
+									
+								</ul>
+							</div>
+						</div>
+						<div id="time" class="nowtime"></div>
+					</div>
+					<!--事件展示-->
+
+					<!-- 模态框（Modal） -->
+					<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×
+				</button>
+									<h4 class="modal-title" id="myModalLabel">
+					待办事项修改
+				</h4>
+								</div>
+								<div class="modal-body">
+									<!-- 检测提示信息-->
+									<div id="modal_message" class="mes"></div>
+									<script>
+										function modify(id, title, message, year, month, day) {
+
+											$("#modal_title").val(title);
+											$("#modal_id").val(id);
+											$("#modal_beizhu").val(message);
+											$("#modal_year").val(year);
+											$("#modal_month").val(month);
+											$("#modal_day").val(day);
+										}
+									</script>
+
+									<form method="post" action="/modify" onsubmit="return checkmofy()">
+										<div class="form-group">
+											<label for="exampleInputEmail1">eventId(不可修改):</label>
+											<input type="text" class="form-control" readonly unselectable="on" name="id" id="modal_id">
+										</div>
+										<div class="form-group">
+											<label for="exampleInputEmail1">待办标题:</label>
+											<input type="text" class="form-control" name="title" id="modal_title" placeholder="请输入标题">
+										</div>
+										<div class="form-group">
+											<label for="exampleInputEmail1">特别备注:</label>
+											<textarea type="text" class="form-control" id="modal_beizhu" name="message" placeholder="备注详情"></textarea>
+										</div>
+										<div class="form-group">
+											<label for="exampleInputEmail1">年:</label>
+											<input type="text" class="form-control" id="modal_year" name="year" placeholder="年份"></input>
+										</div>
+										<div class="form-group">
+											<label for="exampleInputEmail1">月:</label>
+											<input type="text" class="form-control" id="modal_month" name="month" placeholder="月份"></input>
+										</div>
+										<div class="form-group">
+											<label for="exampleInputEmail1">日:</label>
+											<input type="text" class="form-control" id="modal_day" name="day" placeholder="日期"></input>
+										</div>
+										<div class="rediostyle">
+											<label class="radio-inline" style="color: #449D44;">
+        <input type="radio" id="inlineRadio1"   name="urgent" value="1" checked> 普通
+    </label>
+											<label class="radio-inline" style="color: #EEA236;">
+        <input type="radio" id="inlineRadio1"   name="urgent" value="2"> 重要
+    </label>
+											<label class="radio-inline" style="color: #B92C28;">
+        <input type="radio" id="inlineRadio1"   name="urgent" value="3"> 紧急
+    </label>
+
+										</div>
+										<div class="mofybtn">
+											<button style="margin-right: 10px;" type="button" class="btn btn-default" data-dismiss="modal">
+					取消修改
+				</button>
+											<button type="submit" class="btn btn-primary" id="modalsub" data-toggle="tooltip" data-placement="top" title="点击提交">
+					修改
+				</button>
+										</div>
+									</form>
+								</div>
+
+							</div>
+							<!-- /.modal-content -->
+						</div>
+						<!-- /.modal-dialog -->
+					</div>
+					<!-- /.modal -->
+
+					<script>
+						$(function() {
+							$('#myModal').modal('hide')
+							$('#modalsub').click(function() {
+								//								$("#myModal").modal('hide');
+							});
+						});
+					</script>
+
+					<div class="show-events" id="events">
+						<h2>To-Do列表</h2>
+
+						<div id="timelineContainer" class="timelineContainer">
+
+							<div class="timelineToggle">
+								<p>
+									<a class="expandAll">+ 全部展开</a>
+								</p>
+							</div>
+
+							<br class="clear">
+							<%/*find函数用来查找第n次出现的字符，并返回所在位置，便于截取后面的字符串，这里没用，可以扩展*/%>
+							<%for(let i=0;i<right.length;i++){
+							let time = right[i].time;
+							let begin = time.indexOf("-");
+							let down = time.substring(0,begin);
+							let cha="-";
+							let num=1;
+							var two=find(time,cha,num);
+							function find(str,cha,num){
+								var x=time.indexOf(cha);
+                                for(var i=0;i<num;i++){
+                                    x=time.indexOf(cha,x+1);
+                                }
+                                return x;
+							}
+							let up = time.substring(begin+1);
+							let up_month=time.substring(begin+1,two);
+							let down_day=time.substring(two+1);
+							let color = right[i].urgent == 1?"greenyellow":(right[i].urgent == 2?"orange":"red");
+							let zi = right[i].urgent == 1?"普通":(right[i].urgent == 2?"重要":"很重要");
+							let done_color = "orange";
+							let done_zi = "正在进行";
+							let done_icon = "glyphicon glyphicon-list-alt";
+							if(right[i].isdelete == 1){
+								done_color = "greenyellow";
+								done_zi = "已经完成";
+								done_icon = "glyphicon glyphicon-ok";
+							}
+						%>
+
+							<div class="timelineMajor">
+								<h2 class="timelineMajorMarker"><span><%=down %></span></h2>
+								<dl class="timelineMinor">
+									<dt id="19540517"><a style="font-size: 1.5em;" id="a<%=right[i].id%>" ><%=right[i].title %></a></dt>
+									<dd class="timelineEvent" id="19540517EX" style="display:none;">
+										<h3>待办时间：<%=down %>-<%=up_month %>-<%=down_day%></h3>
+										<p id="p<%=right[i].id%>">
+											<%=right[i].message %>
+										</p>
+
+										<br class="clear">
+									</dd>
+									<!-- /.timelineEvent -->
+									<div class="finall">
+										<div class="left" style="float: left;">是否重要>></div>
+										<div class="right" style="color: <%=color %>; float: left;">
+											<%=zi %>
+										</div>
+										<br />
+										<br />
+										<%if(list_flag != 3){ %>
+
+										<a href="/deleteThing?id=<%=right[i].id %>&list=<%=list_flag %> " class="readmore">点击完成&gt;&gt;</a>
+										<a href="jvascript:void(0)" onclick="modify('<%=right[i].id%>','<%=right[i].title%>','<%=right[i].message%>','<%=down%>','<%=up_month%>','<%=down_day%>')" class="readmore" data-toggle="modal" data-target="#myModal">点击修改&gt;&gt;</a>
+										<%} else{ %>
+										<a href="/removeThing?id=<%=right[i].id %>&list=<%=list_flag %> " class="readmore">彻底删除&gt;&gt;</a>
+										<%} %>
+
+									</div>
+								</dl>
+								<!-- /.timelineMinor -->
+							</div>
+							<!-- /.timelineMajor -->
+							<%} %>
+
+							<%if(right.length == 0&&list_flag!=3){ %>
+							<div class="timelineMajor">
+								<h2 class="timelineMajorMarker"><span><%=year %></span></h2>
+								<dl class="timelineMinor">
+									<dt id="19540517"><a>没有待办清单</a></dt>
+									<dd class="timelineEvent" id="19540517EX" style="display:none;">
+										<h3>The date of today：<%=year %>-<%=month %>-<%=day %></h3>
+										<p>
+											你还没有添加待办事件，请在右边添加！
+										</p>
+										<br class="clear">
+									</dd>
+									<!-- /.timelineEvent -->
+
+								</dl>
+								<!-- /.timelineMinor -->
+							</div>
+							<!-- /.timelineMajor -->
+							<% }%>
+
+							<%if(right.length == 0&&list_flag==3){ %>
+							<div class="timelineMajor">
+								<h2 class="timelineMajorMarker"><span><%=year %></span></h2>
+								<dl class="timelineMinor">
+									<dt id="19540517"><a>Trash</a></dt>
+									<dd class="timelineEvent" id="19540517EX" style="display:none;">
+										<h3>The date of today：<%=year %>-<%=month %>-<%=day %></h3>
+										<p>
+											垃圾桶为空，请先确定已完成事件！
+										</p>
+										<br class="clear">
+									</dd>
+									<!-- /.timelineEvent -->
+
+								</dl>
+								<!-- /.timelineMinor -->
+							</div>
+							<!-- /.timelineMajor -->
+							<% }%>
+							<script>
+								$(document).ready(function() {
+									$.timeliner({
+										startOpen: ['#19550828EX', '#19630828EX']
+									});
+									$.timeliner({
+										timelineContainer: '#timelineContainer_2'
+									});
+									// Colorbox Modal
+									$(".CBmodal").colorbox({
+										inline: true,
+										initialWidth: 100,
+										maxWidth: 682,
+										initialHeight: 100,
+										transition: "elastic",
+										speed: 750
+									});
+								});
+							</script>
+						</div>
+					</div>
+				</div>
+				<!-- 正文结束-->
+				<!-- 侧栏开始-->
+				<div class="col-md-3 col-xs-3 rightdiv">
+					<!--事件添加-->
+					<div class="addevent">
+						<!-- 检测提示信息-->
+						<div id="message" class="mes"></div>
+						<!-- 添加TO-DO-->
+						<%if(list_flag != -1){ %>
+						<div class="evevts">
+							<div class="demo"><span class="addtitle">添加TO-DO</span></div>
+							<form action="/addThing?list=<%=list_flag %>" method="post" onsubmit="return checkAdd()">
+								<div class="form-group">
+									<label for="exampleInputEmail1">待办标题:</label>
+									<input type="text" class="form-control" name="title" id="exampleInputEmail1" placeholder="请输入标题">
+								</div>
+								<div class="form-group">
+									<label for="exampleInputEmail1">特别备注:</label>
+									<textarea type="text" class="form-control" id="beizhu" name="message" placeholder="备注详情"></textarea>
+								</div>
+
+								<div class="form-group">
+									<label for="exampleInputEmail1">待办时间:</label>
+									<!-- 使用ejs模板动态显示时间数据-->
+
+									<div>
+										<select class="form-control change" name="year">
+											<%for(var i=0;i<10;i++){ %>
+											<option value="<%=year+i %>">
+												<%=year+i %> </option>
+											<%} %>
+										</select>
+
+										<select class=" form-control change" name="month" style="margin-left: 10px;">
+											<%for(var i=parseInt(month);i<=12;i++){
+											if(i<10)i="0"+i;
+										 %>
+											<option value="<%=i %>">
+												<%=i %> </option>
+											<%} %>
+										</select>
+
+										<select class=" form-control change" name="day" style="margin-left: 10px;">
+											<%for(var i=parseInt(day);i<=days[month-1];i++){ 
+											if(i<10)i="0"+i;	
+										%>
+											<option value="<%=i %>">
+												<%=i %> </option>
+											<%} %>
+									</div>
+									</select>
+								</div>
+
+								<div class="rediostyle">
+									<label class="radio-inline" style="color: #449D44;">
+        <input type="radio" id="inlineRadio1"   name="urgent" value="1" checked> 普通
+    </label>
+									<label class="radio-inline" style="color: #EEA236;">
+        <input type="radio" id="inlineRadio1"   name="urgent" value="2"> 重要
+    </label>
+									<label class="radio-inline" style="color: #B92C28;">
+        <input type="radio" id="inlineRadio1"   name="urgent" value="3"> 紧急
+    </label>
+
+								</div>
+								<div class="btn_div">
+									<button type="submit" class="btn btn-success yanse btnone">添加</button>
+
+									<button type="reset" class="btn btn-warning yanse btnone">重置</button>
+								</div>
+
+							</form>
+						</div>
+					</div>
+					<%} %>
+					<!--日历表-->
+					<div class="data">
+						<SCRIPT LANGUAGE="JavaScript">
+							var now = new Date();
+							var month_array = new Array("january", "february", "march", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+							document.write("<form name=date_list><table bgcolor=silver><tr><td>");
+							document.write("<select name=month onchange=change_month(this.options.selectedIndex)>");
+							for(i = 0; i < month_array.length; i++) {
+								if(now.getMonth() != i) {
+									document.write("<option value=" + i + ">" + month_array[i]);
+								} else {
+									document.write("<option value=" + i + " selected>" + month_array[i]);
+								}
+							}
+							document.write("</select>");
+							document.write("</td><td>");
+							document.write("<select name=year onchange=change_year(this.options[this.options.selectedIndex])>");
+							for(i = now.getFullYear(); i < 3000; i++) {
+								if(now.getYear() != i) {
+									document.write("<option value=" + i + ">" + i);
+								} else {
+									document.write("<option value=" + i + " selected>" + i);
+								}
+							}
+							document.write("</select></td></tr><tr><td colspan=2><center>");
+							document.write("<table bgcolor=white border=0 cellspacing = 0 cellpading = 0 width=100%><tr bgcolor=gray align=center>");
+							document.write("<td><font color=silver>M</font></td><td><font color=silver>T</td><td><font color=silver>W</td><td><font color=silver>T</td><td><font color=silver>F</td><td ><font color=silver>S</td><td ><font color=silver>S</td>");
+							document.write("</tr><tr>");
+							for(j = 0; j < 6; j++) {
+								for(i = 0; i < 7; i++) {
+									document.write("<td align=center id=d" + i + "r" + j + "></td>")
+								}
+								document.write("</tr>");
+							}
+							document.write("</table>");
+							document.write("</center></form></td></tr></table>");
+							var show_date = new Date();
+
+							function set_cal(show_date) {
+								begin_day = new Date(show_date.getYear(), show_date.getMonth(), 1);
+								begin_day_date = begin_day.getDay();
+								end_day = new Date(show_date.getYear(), show_date.getMonth() + 1, 1);
+								count_day = (end_day - begin_day) / 1000 / 60 / 60 / 24;
+								input_table(begin_day_date, count_day);
+							}
+							set_cal(show_date);
+
+							function input_table(begin, count) {
+								init();
+								j = 0;
+								if(begin != 0) {
+									i = begin - 1;
+								} else {
+									i = 6
+								}
+								for(c = 1; c < count + 1; c++) {
+									colum_name = eval("d" + i + "r" + j);
+									if((now.getDate() == c) && (show_date.getMonth() == now.getMonth()) && (show_date.getYear() == now.getYear())) {
+										colum_name.style.backgroundColor = "blue";
+										colum_name.style.color = "white";
+									};
+									colum_name.innerText = c;
+									i++;
+									if(i == 7) {
+										i = 0;
+										j++;
+									}
+								}
+							}
+
+							function init() {
+								for(j = 0; j < 6; j++) {
+									for(i = 0; i < 7; i++) {
+										colum_name = eval("d" + i + "r" + j);
+										colum_name.innerText = "-";
+										colum_name.style.backgroundColor = "";
+										colum_name.style.color = "";
+									}
+								}
+							}
+
+							function change_month(sel_month) {
+								show_date = new Date(show_date.getYear(), sel_month, 1);
+								set_cal(show_date);
+							}
+
+							function change_year(sel_year) {
+								sel_year = sel_year.value;
+								show_date = new Date(sel_year, show_date.getMonth(), 1);
+								set_cal(show_date);
+							}
+						</script>
+					</div>
+				</div>
+				<!-- 侧栏结束-->
+			</div>
+
+		</div>
+	</body>
+
+</html>
